@@ -57,6 +57,13 @@ let win;
 function sendStatusToWindow(text) {
   log.info(text);
   win.webContents.send('message', text);
+
+  win.webContents.executeJavaScript(`console.log('${text}')`, true)
+  .then((result) => {
+    console.log('log2', text) // Will be the JSON object from the fetch call
+  })
+
+  console.log(text);
 }
 function createDefaultWindow() {
   win = new BrowserWindow();
@@ -64,25 +71,38 @@ function createDefaultWindow() {
   win.on('closed', () => {
     win = null;
   });
-  win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
+  // win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
+  win.loadURL('https://www.fieldfx.com');
   return win;
 }
+
+
+//autoUpdater.autoDownload = false
+
 autoUpdater.on('checking-for-update', () => {
   sendStatusToWindow('Checking for update...');
 })
 autoUpdater.on('update-available', (info) => {
-  sendStatusToWindow('Update available.');
+  sendStatusToWindow('Update available: ' + info.version);
+  sendStatusToWindow(JSON.stringify(info));
 })
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
+  sendStatusToWindow(JSON.stringify(info));
 })
 autoUpdater.on('error', (err) => {
-  sendStatusToWindow('Error in auto-updater.');
+  sendStatusToWindow('Error in auto-updater: ' + err.message);
+  sendStatusToWindow(err.stack);
 })
 autoUpdater.on('download-progress', (progressObj) => {
   let log_message = "Download speed: " + progressObj.bytesPerSecond;
   log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
   log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+
+
+  win.setProgressBar(progressObj.percent/100);
+
+
   sendStatusToWindow(log_message);
 })
 autoUpdater.on('update-downloaded', (info) => {
@@ -125,10 +145,11 @@ autoUpdater.on('update-downloaded', (info) => {
   // In your application, you don't need to wait 5 seconds.
   // You could call autoUpdater.quitAndInstall(); immediately
   setTimeout(function() {
-    autoUpdater.quitAndInstall();  
+    autoUpdater.quitAndInstall();
   }, 5000)
 })
 
 app.on('ready', function()  {
   autoUpdater.checkForUpdates();
 });
+

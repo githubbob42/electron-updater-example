@@ -1,0 +1,3 @@
+echo "Unsetting Cert variables..."
+unset WIN_CSC_KEY_PASSWORD; unset CSC_KEY_PASSWORD
+unset WIN_CSC_LINK; unset CSC_LINK

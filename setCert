@@ -1,0 +1,7 @@
+echo "Setting Cert variables..."
+
+export WIN_CSC_LINK=./2018cert.pfx
+export WIN_CSC_KEY_PASSWORD="suite405()"
+
+export CSC_LINK=./2018cert.pfx
+export CSC_KEY_PASSWORD="suite405()"
