@@ -66,13 +66,21 @@ function sendStatusToWindow(text) {
   console.log(text);
 }
 function createDefaultWindow() {
-  win = new BrowserWindow();
+  win = new BrowserWindow({
+    webPreferences: {
+        javascript: true,
+        plugins: true,
+        // node globals causes problems with sites like messenger.com
+        nodeIntegration: false
+      }
+    }
+  );
   win.webContents.openDevTools();
   win.on('closed', () => {
     win = null;
   });
-  // win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
-  win.loadURL('https://www.fieldfx.com');
+  win.loadURL(`file://${__dirname}/version.html#v${app.getVersion()}`);
+  // win.loadURL('https://www.fieldfx.com');
   return win;
 }
 
@@ -89,6 +97,7 @@ autoUpdater.on('update-available', (info) => {
 autoUpdater.on('update-not-available', (info) => {
   sendStatusToWindow('Update not available.');
   sendStatusToWindow(JSON.stringify(info));
+  win.loadURL('https://www.fieldfx.com');
 })
 autoUpdater.on('error', (err) => {
   sendStatusToWindow('Error in auto-updater: ' + err.message);
